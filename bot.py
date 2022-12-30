@@ -64,7 +64,7 @@ def reply_with_chatgpt_prompt(user_request):
         
         try:
             api.update_status(
-                f"@{tweet.user.screen_name} Here is your Startup Idea generated with #ChatGPT👇 \n\n {response} \n\nJoin the https://ai.slyk.io community to earn $AI and launch this #startup idea.",
+                f"@{tweet.user.screen_name} Here is your #StartupIdea generated with #ChatGPT👇 \n\n {response} \n\nJoin the https://ai.slyk.io community to earn $AI and launch this idea with Slyk.",
                 in_reply_to_status_id=tweet.id
             )     
         except StopIteration:
@@ -75,7 +75,7 @@ while True:
         search_and_reply("@slyk_ai launch a startup")
         search_and_reply2("@slyk_ai make a slyk clone")
         reply_with_chatgpt_prompt("@slyk_ai give me a startup idea")
-        time.sleep(30)
+        time.sleep(800)
     except tweepy.errors.Forbidden as e:
         if e.api_codes == 187:
             # duplicate tweet error
