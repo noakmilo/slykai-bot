@@ -1,26 +1,41 @@
 #!/usr/bin/env python
-import tweepy
-#from our keys module (keys.py), import the keys dictionary
-from keys import keys
-import openai
+import os
 import time
 
-CONSUMER_KEY = keys['consumer_key']
-CONSUMER_SECRET = keys['consumer_secret']
-ACCESS_TOKEN = keys['access_token']
-ACCESS_TOKEN_SECRET = keys['access_token_secret']
+import tweepy
+import openai
+from dotenv import load_dotenv
+
+# load .env as an environment variable
+load_dotenv()
+
+
+def get_env(variable: str) -> str:
+    try:
+        return os.environ[variable]
+    except KeyError:
+        raise KeyError(f"You must implement '{variable}'")
+
+
+CONSUMER_KEY = get_env('CONSUMER_KEY')
+CONSUMER_SECRET = get_env('CONSUMER_SECRET')
+ACCESS_TOKEN = get_env('ACCESS_TOKEN')
+ACCESS_TOKEN_SECRET = get_env('ACCESS_TOKEN_SECRET')
+OPENAI_KEY = get_env("OPENAI_KEY")
 
 # Set OpenAI API key
-openai.api_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+openai.api_key = OPENAI_KEY
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
-def search_and_reply(string):
-       # Get the latest replies with the string criteria
-    for tweet in tweepy.Cursor(api.search_tweets, q=string, lang='en').items(1):
+def search_and_reply(query):
+    """
+    Get the latest replies with the string criteria
+    """
+    for tweet in tweepy.Cursor(api.search_tweets, q=query, lang='en').items(1):
         replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
         if replies:    
             continue
@@ -32,6 +47,7 @@ def search_and_reply(string):
             )
         except StopIteration:
             break
+
 
 def search_and_reply2(string2):
     # Get the latest replies with the string2 criteria
@@ -48,6 +64,7 @@ def search_and_reply2(string2):
             )
         except StopIteration:
             break
+
 
 def reply_with_chatgpt_prompt(user_request):
     model_engine = "text-davinci-002"
@@ -70,17 +87,20 @@ def reply_with_chatgpt_prompt(user_request):
         except StopIteration:
             break
                         
-while True:
-    try:
-        search_and_reply("@slyk_ai launch a startup")
-        search_and_reply2("@slyk_ai make a slyk clone")
-        reply_with_chatgpt_prompt("@slyk_ai give me a startup idea")
-        time.sleep(800)
-    except tweepy.errors.Forbidden as e:
-        if e.api_codes == 187:
-            # duplicate tweet error
-            print("Error: Duplicate tweet")
-        else:
-            # other error
-            print(e)
-            
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            search_and_reply("@slyk_ai launch a startup")
+            search_and_reply2("@slyk_ai make a slyk clone")
+            reply_with_chatgpt_prompt("@slyk_ai give me a startup idea")
+            time.sleep(800)
+        except tweepy.errors.Forbidden as e:
+            if e.api_codes == 187:
+                # duplicate tweet error
+                print("Error: Duplicate tweet")
+            else:
+                # other error
+                print(e)
+
