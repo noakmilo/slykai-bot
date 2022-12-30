@@ -16,8 +16,6 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 def search_and_reply(string):
     for tweet in tweepy.Cursor(api.search_tweets, q=string, lang='en').items(1):
-       # recent_tweet = api.user_timeline(count=1)[0]
-       # if recent_tweet.in_reply_to_status_id == tweet.id:
         replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
         if replies:    
             continue
@@ -32,8 +30,6 @@ def search_and_reply(string):
 
 def search_and_reply2(string2):
     for tweet in tweepy.Cursor(api.search_tweets, q=string2, lang='en').items(1):
-        #recent_tweet = api.user_timeline(count=1)[0]
-        #if recent_tweet.in_reply_to_status_id == tweet.id:
         replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
         if replies:    
             
