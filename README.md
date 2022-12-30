@@ -11,6 +11,19 @@ CONTRIBUTORS ARE WELCOME AND WILL BE REWARDED :)
 Join https://ai.slyk.io and earn $AI coin by sharing out community or making commits in this repository.
 
 ## How to run
+
+### Virtual environment
+
+Create a virtual environment with the following command:
+
+    python -m venv .venv
+
+and then install al the required packages:
+
+    pip install -r requirements.txt
+
+### Secrets
+
 create a `.env` file with the following keys:
 
 - `CONSUMER_KEY`: the Twitter consumer key
@@ -20,3 +33,7 @@ create a `.env` file with the following keys:
 - `OPENAI_KEY`: the OpenAI key
 
 To get the API credentials you should visit [Twitter development site](https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api) and the [OpenAI key](https://beta.openai.com/account/api-keys)
+
+Then run:
+
+    python bot.py
