@@ -2,6 +2,7 @@
 import tweepy
 #from our keys module (keys.py), import the keys dictionary
 from keys import keys
+import openai
 import time
 
 CONSUMER_KEY = keys['consumer_key']
@@ -9,12 +10,16 @@ CONSUMER_SECRET = keys['consumer_secret']
 ACCESS_TOKEN = keys['access_token']
 ACCESS_TOKEN_SECRET = keys['access_token_secret']
 
+# Set OpenAI API key
+openai.api_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
 def search_and_reply(string):
+       # Get the latest replies with the string criteria
     for tweet in tweepy.Cursor(api.search_tweets, q=string, lang='en').items(1):
         replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
         if replies:    
@@ -29,6 +34,7 @@ def search_and_reply(string):
             break
 
 def search_and_reply2(string2):
+    # Get the latest replies with the string2 criteria
     for tweet in tweepy.Cursor(api.search_tweets, q=string2, lang='en').items(1):
         replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
         if replies:    
@@ -42,11 +48,33 @@ def search_and_reply2(string2):
             )
         except StopIteration:
             break
+
+def reply_with_chatgpt_prompt(user_request):
+    model_engine = "text-davinci-002"
+    completion = openai.Completion.create(engine=model_engine, prompt=user_request, max_tokens=120, n=1,stop=None,temperature=1)
+    response = completion.choices[0].text
+   
+    # Get the latest replies with the user_request criteria
+
+    for tweet in tweepy.Cursor(api.search_tweets, q=user_request, lang='en').items(1):
+        replies = api.search_tweets(q=f"to:{tweet.user.screen_name}", since_id=tweet.id)
+        if replies:  
+              
+            continue
+        
+        try:
+            api.update_status(
+                f"@{tweet.user.screen_name} Here is your Startup Idea generated with #ChatGPT👇 \n\n {response} \n\nJoin the https://ai.slyk.io community to earn $AI and launch this #startup idea.",
+                in_reply_to_status_id=tweet.id
+            )     
+        except StopIteration:
+            break
                         
 while True:
     try:
         search_and_reply("@slyk_ai launch a startup")
         search_and_reply2("@slyk_ai make a slyk clone")
+        reply_with_chatgpt_prompt("@slyk_ai give me a startup idea")
         time.sleep(30)
     except tweepy.errors.Forbidden as e:
         if e.api_codes == 187:
